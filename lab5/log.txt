@@ -1,0 +1,12 @@
+[1;1H[2J[32m->[31m  : Bye Bye !
+
+----------------
+INODE INFO
+inode_num :  0
+next_free :  1
+len : 0
+blocks : 0
+file blocks are :
+parent inode num -2
+----------------
+
