@@ -29,7 +29,6 @@ int DEBUG_APP = 0;
 void install_fs(){
     fptr = fopen(FILE_NAME_100M, "r+");
     if(fptr == NULL || DEBUG_FS || RE_INSTALL){
-        
         // 创建的一个100 M 的文件
         if(!DEBUG_FS && fptr == NULL){
             fptr = fopen(FILE_NAME_100M, "a+");
@@ -44,7 +43,7 @@ void install_fs(){
         fs_config.BLOCK_SIZE = 512;
         fs_config.BLOCK_NUM = 204800;
         fs_config.I_NODE_NUM = fs_config.BLOCK_NUM / 4;
-        fs_config.I_NODE_BLOCKS = 
+        fs_config.I_NODE_BLOCKS =
             fs_config.I_NODE_NUM * sizeof(struct inode) / fs_config.BLOCK_SIZE + 1;
         fs_config.DATA_BLOCKS_START = 1 + fs_config.I_NODE_BLOCKS;
         fseek(fptr , 0 , SEEK_SET );
@@ -71,7 +70,7 @@ void install_fs(){
         root_inode.next_free = 1;
         fseek(fptr, fs_config.BLOCK_SIZE , SEEK_SET );
         fwrite(&root_inode, sizeof(root_inode), 1, fptr);
-        
+
         if(DEBUG_FS) print_inode(&root_inode);
 
         // 之后位置写入链表关联的数据
@@ -146,14 +145,14 @@ int alloc_block(){
         fseek(fptr, fs_config.BLOCK_SIZE * block_id, SEEK_SET);
         fread(&super_free_node, sizeof(struct free_node), 1, fptr);
 
-        return block_id; 
+        return block_id;
     }
     return 0;
 }
 
 int free_block(int block_id){
     if(DEBUG_APP) print_super_free_node(1, block_id);
-    
+
     if(super_free_node.free_num == 100){
         // super_block 中间数据满， 将空闲区间放置 super block 的数据
         fseek(fptr, fs_config.BLOCK_SIZE * block_id, SEEK_SET);

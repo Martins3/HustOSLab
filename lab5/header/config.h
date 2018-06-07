@@ -14,7 +14,7 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
-#define VIM_BUF_PATH "/home/martin/X-Brain/Notes/Atom/notes/os/project/fs/buf.txt"
+#define VIM_BUF_PATH "/home/martin/X-Brain/SillyHustOsProject/buf.txt"
 /**
  * fs 0
  * inode_table x
@@ -32,7 +32,7 @@ struct fs{
  * 1. for every empty block, there is just one struct for it !
  * 2. the super free_node is in the ram
  * 3. there is a special area for super free_node
- *  
+ *
  * 对于 0 的位置添加数据是 管理区间
  */
 struct free_node{
@@ -44,11 +44,11 @@ struct free_node{
 /**
  * assume every 1k, there is a inode in the table
  * 计算inode 含有偏移量， 但是磁盘块号没有
- * 
+ *
  * inode 既可以文件磁盘管理， 也是读取管理的
- * 
+ *
  * inode 使用链表的方法实现空闲的inode 的管理
- * 
+ *
  * 使用前面 permission的前面的9为 p
  * inode 中间的含有父节点的inode， 但是为cd .. 的
  * 方便的 需要添加进去
@@ -64,7 +64,7 @@ struct inode{
     unsigned int block_num; // blocks
     unsigned int ptr_pos;
 
-    unsigned int i_addr[14]; 
+    unsigned int i_addr[14];
 
     /**
      * 管理空闲inode 数据
@@ -84,22 +84,22 @@ struct dir_file{
     char file_name[48]; // ascii supported
     int type;
     /**
-     *  -1 means parent dir 
-     *  0 means file  
+     *  -1 means parent dir
+     *  0 means file
      *  1 means dir
      */
 };
 
 /**
  * 1. 首先确保数据是自己的
- * 2. 
+ * 2.
  */
 #define BUF_NUM 8
 #define BUF_SIZE 512 * BUF_NUM
 struct buffer{
-    char data[BUF_SIZE];    
+    char data[BUF_SIZE];
     unsigned int ptr_pos;
-    
+
     // indicate 多少个写入
     int write_num;
     // disk block num
@@ -122,7 +122,7 @@ enum file_type{
 /**
  * 假设文件名不会超过1000
  * 从根节点到达当前的位置不会有100 级别
- * 
+ *
  * fs_boot() 初始化
  */
 struct cur_path{
@@ -136,7 +136,7 @@ struct cur_path{
  * declare important data store in ram
  * the data is declare in the kernel.c
  * buf 是实现将整合的数据整合的关键
- * buf 
+ * buf
  */
 extern struct fs fs_config;
 extern struct free_node super_free_node;
@@ -145,7 +145,7 @@ extern struct buffer BUF;
 
 extern struct inode root_inode;
 extern struct inode curDir;
-extern struct cur_path CUR_PATH; 
+extern struct cur_path CUR_PATH;
 extern struct inode * cur_dir;
 extern char command[1000];
 extern int args_count;

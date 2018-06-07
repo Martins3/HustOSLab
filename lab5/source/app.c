@@ -64,8 +64,8 @@ void vim(const char * file_name){
     if(!fork()){
         execvp("vim", args);
     }
-    // wait(&status);
-    printf("back to the main process");
+    wait(&status);
+    printf("back to the main process\n");
 
 
     buf = fopen(VIM_BUF_PATH, "rb");
@@ -241,7 +241,7 @@ void cat(const char * file_name){
     if(DEBUG_APP){
         printf("读入的文件的长度为%d", f->len);
     }
-    printf("%s%s", KCYN, contend);
+    printf("%s%s\n", KCYN, contend);
     close_file(f);
 }
 
