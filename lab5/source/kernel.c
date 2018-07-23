@@ -26,6 +26,8 @@ enum file_type open_file_type;
 int RE_INSTALL = 0;
 int DEBUG_APP = 0;
 
+
+
 void install_fs(){
     fptr = fopen(FILE_NAME_100M, "r+");
     if(fptr == NULL || DEBUG_FS || RE_INSTALL){

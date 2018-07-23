@@ -13,7 +13,7 @@ int list_dir(fFile dir){
     DIR_FILE f;
     if(dir == NULL) return -1;
     DIR_FILE* files = (DIR_FILE*) malloc(dir->len);
-    
+
     dir->ptr_pos = 0;
     read_file(files, sizeof(DIR_FILE), dir->len / sizeof(DIR_FILE), dir);
 
@@ -32,7 +32,7 @@ int list_dir(fFile dir){
 void clear(fFile file){
     // 释放所有磁盘的位置
     for(Integer i = 0; i < file->block_num; i++){
-        Integer disk_id; 
+        Integer disk_id;
 
         if(i <= 10){
             disk_id = file->i_addr[i];
@@ -40,7 +40,7 @@ void clear(fFile file){
             int b_n = fs_config.BLOCK_SIZE / sizeof(int);
             int x = (i - 11) / (b_n) + 11;
             int y = (i - 11) % (b_n);
-            
+
             seek(file->i_addr[x]);
             fseek(fptr, y * sizeof(int), SEEK_CUR);
             fread(&disk_id, sizeof(int), 1, fptr);
@@ -56,10 +56,10 @@ void clear(fFile file){
 void delete_dir_item(const char * dir_name){
     // 读出数据 然后将前后的写入到其中
     // 遍历当前目录的所有目录项
-    
+
     DIR_FILE f;
     DIR_FILE* files = (DIR_FILE*) malloc(cur_dir->len);
-    
+
     cur_dir->ptr_pos = 0;
     read_file(files, sizeof(DIR_FILE), cur_dir->len / sizeof(DIR_FILE), cur_dir);
     Integer item_num = cur_dir->len / sizeof(DIR_FILE);
@@ -75,7 +75,7 @@ void delete_dir_item(const char * dir_name){
             file_seek(cur_dir, END);
             write_file(files + i + 1, sizeof(DIR_FILE), item_num - i - 1, cur_dir);
             find_assert = 1;
-            break; 
+            break;
         }
     }
     assert(find_assert);
@@ -101,7 +101,7 @@ int delete_inode(Integer inode_num){
 }
 
 
-    
+
 int delete_recur(Integer inode_num, enum file_type t){
     fFile dir = (fFile) malloc(sizeof(INODE));
     load_inode(dir, inode_num);
@@ -111,6 +111,7 @@ int delete_recur(Integer inode_num, enum file_type t){
         printf("包含的内容\n");
         list_dir(dir);
     }
+
     DIR_FILE f;
     DIR_FILE* files = (DIR_FILE*) malloc(dir->len);
 
@@ -126,7 +127,7 @@ int delete_recur(Integer inode_num, enum file_type t){
         }
         if(f.type == 1){
             // 进一步删除的文件夹
-            delete_recur(f.inode_num, IS_DIR); 
+            delete_recur(f.inode_num, IS_DIR);
         }else if(f.type == 0){
             delete_inode(f.inode_num);
         }
@@ -145,9 +146,10 @@ int delete_unix_file(const char * unix_file, enum file_type t){
     fFile file  = open_file(unix_file);
     if(t != open_file_type) return -1;
     if(file != NULL){
-        // 如果是文件夹， 那么首先需要 将 持有的数据释放 掉
+        // 如果是文件夹，那么首先需要 将 持有的数据释放 掉
         assert(file->inode_num);
         if(t == IS_DIR) {
+            // 释放控制的空间
             delete_recur(file->inode_num, t);
         }
         if(t == IS_FILE) delete_inode(file->inode_num);
@@ -156,7 +158,7 @@ int delete_unix_file(const char * unix_file, enum file_type t){
         return 1;
     }
     printf("%s%s does't exit !", KRED, unix_file);
-    return 0; 
+    return 0;
 }
 
 
@@ -165,7 +167,7 @@ int new_unix_file(const char * unix_file, enum file_type t){
     if(file == NULL){
         file = (fFile)malloc(sizeof(INODE));
 
-        // 获取空闲的inode 
+        // 获取空闲的inode
         Integer inode_num = root_inode.next_free;
         load_inode(file, inode_num);
         root_inode.next_free = file->next_free;
@@ -182,21 +184,21 @@ int new_unix_file(const char * unix_file, enum file_type t){
         file_seek(cur_dir, END);
         write_file(dir, sizeof(DIR_FILE), 1, cur_dir);
 
-        // 记录自己的parent 
+        // 记录自己的parent
         file->parent = cur_dir->inode_num;
 
         // 如果是目录， 那么添加目录项到达中间的去
         if(t == IS_DIR){
             dir->inode_num = cur_dir ->inode_num;
             dir->type = -1;
-            strcpy(dir->file_name, ".."); 
+            strcpy(dir->file_name, "..");
             file_seek(file, END);
             write_file(dir, sizeof(DIR_FILE), 1, file);
         }
 
-        // 写回 和 释放 
+        // 写回 和 释放
         save_inode(file);
-        
+
         free(file);
         free(dir);
         return 1;
@@ -209,7 +211,7 @@ fFile open_file(const char * file_name){
     if(DEBUG_IO) printf("try to open %s\n", file_name);
     DIR_FILE f;
     DIR_FILE* files = (DIR_FILE*) malloc(cur_dir->len);
-    
+
     cur_dir->ptr_pos = 0;
     read_file(files, sizeof(DIR_FILE), cur_dir->len / sizeof(DIR_FILE), cur_dir);
 
@@ -222,13 +224,13 @@ fFile open_file(const char * file_name){
             open_file_type = f.type == 0 ? IS_FILE : IS_DIR;
             load_inode(target_file, f.inode_num);
             target_file->ptr_pos = 0;
-            break; 
+            break;
         }
     }
 
     free(files);
     if(DEBUG_IO) print_inode(target_file);
-    return target_file; 
+    return target_file;
 }
 
 
@@ -248,7 +250,7 @@ Integer count, fFile file){
     if(DEBUG_IO) print_read_file_config(size, count, file);
 
     assert(file->len >= file->ptr_pos);
-    
+
     Integer remain = file->len - file->ptr_pos;
     Integer already_read = 0;
 
@@ -258,7 +260,7 @@ Integer count, fFile file){
     while(remain != 0  && already_read != count * size){
         load_block(file);
         Integer s = file->ptr_pos % fs_config.BLOCK_SIZE;
-        
+
         // 选择三者最小值
         Integer e = sizeof(BUF.data);
         if(e > remain + s) e = remain + s;
@@ -268,7 +270,7 @@ Integer count, fFile file){
         // 从缓冲区间读取数据到 ptr 中间
         memcpy(obp, &BUF.data[s], e - s);
 
-        // update 
+        // update
         Integer cpy_len = e - s;
         obp += cpy_len;
         file->ptr_pos += cpy_len;
@@ -296,13 +298,13 @@ Integer count, fFile file){
 
 
     char * obp = (char *)ptr;
-    
-    
+
+
     while(already_write != count * size){
         Integer s = file->ptr_pos % fs_config.BLOCK_SIZE;
-        
+
         Integer e = sizeof(BUF.data);
-        if(e > (count * size - already_write) + s) 
+        if(e > (count * size - already_write) + s)
             e = (count * size - already_write) + s;
         // 从缓冲区间读取数据到 ptr 中间
         load_block(file); // 防止出现的数据覆盖的
@@ -311,14 +313,14 @@ Integer count, fFile file){
         BUF.write_num = e / fs_config.BLOCK_SIZE;
         if(e % fs_config.BLOCK_SIZE) BUF.write_num ++;
         write_block(file);
-        
-        // update 
+
+        // update
         Integer cpy_len = e - s;
         obp += cpy_len;
         file->ptr_pos += cpy_len;
         already_write += cpy_len;
     }
-    
+
     // 数据存盘
     save_inode(file);
     return already_write / size;
@@ -333,13 +335,13 @@ int write_block(fFile file){
         if(BUF.blocks[i] == 0){
             disk_num = extend_file(file);
         } else{
-            disk_num = BUF.blocks[i];  
+            disk_num = BUF.blocks[i];
         }
         seek(disk_num);
-        fwrite(&BUF.data[i * fs_config.BLOCK_SIZE], 
-        sizeof(char) * fs_config.BLOCK_SIZE, 1, fptr); 
+        fwrite(&BUF.data[i * fs_config.BLOCK_SIZE],
+        sizeof(char) * fs_config.BLOCK_SIZE, 1, fptr);
     }
-    return i; 
+    return i;
 }
 
 // 读写位置含有 问题 吗 ？
@@ -350,17 +352,17 @@ int load_block(fFile file){
     for (i = 0; i < BUF_NUM; i++) {
         if(!BUF.blocks[i]) break;
         seek(BUF.blocks[i]);
-        fread(&BUF.data[i * fs_config.BLOCK_SIZE], 
-        sizeof(char) * fs_config.BLOCK_SIZE, 1, fptr); 
+        fread(&BUF.data[i * fs_config.BLOCK_SIZE],
+        sizeof(char) * fs_config.BLOCK_SIZE, 1, fptr);
     }
-    return i; 
+    return i;
 }
 
 void get_blocks_nums(fFile file){
     Integer start_i = file->ptr_pos / fs_config.BLOCK_SIZE;
     memset(BUF.blocks, 0, sizeof(BUF.blocks));
 
-    // 三个间接 链接 
+    // 三个间接 链接，最多两层
     for(Integer i = start_i; i < BUF_NUM + start_i; i++){
         if(i >= file->block_num) break;
 
@@ -370,13 +372,12 @@ void get_blocks_nums(fFile file){
             int b_n = fs_config.BLOCK_SIZE / sizeof(int);
             int x = (i - 11) / (b_n) + 11;
             int y = (i - 11) % (b_n);
-            
+
             seek(file->i_addr[x]);
             fseek(fptr, y * sizeof(int), SEEK_CUR);
             fread(&BUF.blocks[i - start_i], sizeof(int), 1, fptr);
         }
     }
-
 }
 
 int extend_file(fFile file){
@@ -389,7 +390,7 @@ int extend_file(fFile file){
         return file->i_addr[add_num];
     }
 
-    // 下标为 11 12 13 ， 使用间接 
+    // 下标为 11 12 13 ， 使用间接
     else{
         int b_n = fs_config.BLOCK_SIZE / sizeof(int);
         int x = (add_num - 11) / (b_n) + 11;
@@ -402,7 +403,7 @@ int extend_file(fFile file){
         int b_id = alloc_block();
         fwrite(&b_id, sizeof(int), 1, fptr);
 
-        // update the file 
+        // update the file
         file->block_num ++;
         return b_id;
     }

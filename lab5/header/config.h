@@ -65,7 +65,6 @@ struct inode{
     unsigned int ptr_pos;
 
     unsigned int i_addr[14];
-
     /**
      * 管理空闲inode 数据
      * 当该inode 被占用的时候，为0
@@ -90,21 +89,17 @@ struct dir_file{
      */
 };
 
-/**
- * 1. 首先确保数据是自己的
- * 2.
- */
 #define BUF_NUM 8
 #define BUF_SIZE 512 * BUF_NUM
+
+// 缓冲区的大小
 struct buffer{
     char data[BUF_SIZE];
     unsigned int ptr_pos;
-
     // indicate 多少个写入
     int write_num;
     // disk block num
     unsigned int blocks[BUF_NUM];
-
 };
 
 /**
@@ -122,21 +117,18 @@ enum file_type{
 /**
  * 假设文件名不会超过1000
  * 从根节点到达当前的位置不会有100 级别
- *
  * fs_boot() 初始化
  */
 struct cur_path{
     char path[1000];
     unsigned int inodes[100];
     unsigned int p_inodes;
-
 };
 
 /**
  * declare important data store in ram
  * the data is declare in the kernel.c
  * buf 是实现将整合的数据整合的关键
- * buf
  */
 extern struct fs fs_config;
 extern struct free_node super_free_node;

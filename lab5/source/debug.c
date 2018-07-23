@@ -22,7 +22,7 @@ void print_super_free_node(int mode, int disk_id){
     }
     printf("s_free 为 %d\n", super_free_node.free_num);
 
-    
+
     // printf("对应的磁盘的块号的是：\n");
     // for(int i = 0; i < 100; i ++){
     //     printf("%d ", super_free_node.s_free[i]);
@@ -35,7 +35,7 @@ void print_super_free_node(int mode, int disk_id){
 void print_file_blcoks(fFile node){
 
     for(Integer i = 0; i < node->block_num; i++){
-        Integer disk_id; 
+        Integer disk_id;
 
         if(i <= 10){
             disk_id = node->i_addr[i];
@@ -43,7 +43,7 @@ void print_file_blcoks(fFile node){
             int b_n = fs_config.BLOCK_SIZE / sizeof(int);
             int x = (i - 11) / (b_n) + 11;
             int y = (i - 11) % (b_n);
-            
+
             seek(node->i_addr[x]);
             fseek(fptr, y * sizeof(int), SEEK_CUR);
             fread(&disk_id, sizeof(int), 1, fptr);
@@ -63,7 +63,7 @@ void print_cur_path(){
 
 void print_DIR_FILE(DIR_FILE * f){
     printf("inode num %d\n", f->inode_num);
-    
+
     if(f->type == -1){
         printf("Dir name %s\n", "..");
     }else if(f->type == 0){
@@ -88,7 +88,7 @@ void print_inode(fFile node){
     printf("blocks : %u\n", node->block_num);
 
     printf("file blocks are :\n");
-    print_file_blcoks(node); 
+    print_file_blcoks(node);
     printf("parent inode num %d\n",node->parent);
     printf("----------------\n\n");
 }
