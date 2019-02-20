@@ -1,72 +1,66 @@
-1. 到底什么时候写入 inode 的消息, 绝对不可以发生 缺失 ！
+# 架构
+application ： 命令解析 和 执行命令
+io : 打开 删除 读 写
+kernel: 100M文件的初始化 运行的加载super\_block节点 磁盘块的释放和分配
 
-2. 首先完成一份的文本界面的版本， 然后在Qt 封装
-    1. 打开文件默认为 w+ 模式
-    2. 修改的文件名的位置
-    3. debug 函数
-        1. 暂时测试部分为写入不超过一个块大小的部分
-
-3. 绘制Qt 界面
-
-config:
-1. 相同目录 dir 和 file 不可以名字相同的
-2. 
+依托于inode节点 建立树形状结构
+通过多级磁盘， 实现整个文件的管理
 
 
-debug: 
-1. 担心 读写位置的含有错误， 出现了的把 磁盘数据修改的情况的
-2. 含有数据刷新的问题, 如果管理 curDir, 和 root_node 数据
-应该的清除掉root_inode 使用的cur_inode 指针管理的所有的数据的
-问题是反复的查询root_inode , 
-添加函数 用于防止当当前的目录就是的， 
-root_inode 最后存盘
+## 存储的分布
+config
+成组链接法 的 super\_node 启动的时候加载进入
+inode节点 数组
+磁盘
+
+## 配置
+1. 磁盘编号为顺序编号
+
+## 成组链接法
+1. 初始化100M文件的时候， 逐个回收文件
+2. 释放 和 回收
+    数值 s = 100
+    数组 k[100]
+
+## 链表管理free inode
+
+## 如何实现删除的文件或者文件夹
+删除文件:
+    1. 删除所在节点的表项
+    2. 删除inode
+    3. 释放控制的磁盘块
+
+删除文件夹: 递归删除
 
 
-3. 注意存盘
+## 如何实现读写文件
+1. 长度超过缓冲区的大小
+2. 删除文件之后， 如何回收磁盘块
 
-4. read 的 fseek 需要实在文件结束的位置
-5. inode 的大小 有问题的  ？
-6. 任何文件指针的管理 ！=》 dir , 使用之前设置为0
-7. root_node 指向第一个块是 204799 吗 ？
+## inode中间含有什么
+文件基本信息
+inode管理
+多级文件的管理
 
-1. 向回写的时候含有问题 ！
-
-1. 如果读取block 正确与否的时候 都是会出现的正确结果 ！
-
-为什么 含有 inode 
-1. 初始化的时候， 
-2. 如果的进入到目录， 那么写入如果不是root, 写入数据， 修改指针， 
-
-1. cd 的时候 可以进入的到文件的中间去
-2. 删除文件的时候 会出现的
-
-发现唯独的root_inode cons 出现问题
+## 如何集成vim的
 ```
-    fclose(fptr);
-
-    fptr = fopen("/home/martin/X-Brain/Notes/Atom/os/project/fs/log", "rb+");
-    char stupid[1024 * 1024];
-    for(int i = 0; i < 1; i++)
-        fwrite(stupid, sizeof(char), sizeof(stupid), fptr);
-
-    fFile fp = get_cur_dir();
-    fp->next_free = 12345;
-    print_inode(fp);
-    fseek(fptr, 0, SEEK_SET);
-    fwrite(fp, sizeof(INODE), 1, fptr);
-    
-    fp->next_free = 2;
-    fseek(fptr, sizeof(INODE), SEEK_SET);
-    fwrite(fp, sizeof(INODE), 1, fptr);
-
-
-
-    printf("%lu", ftell(fptr));
-    fseek(fptr, 0, SEEK_SET);
-    fread(fp, sizeof(INODE), 1, fptr);
-    print_inode(fp);
-
-    fseek(fptr, sizeof(INODE) , SEEK_SET);
-    fread(fp, sizeof(INODE), 1, fptr);
-    print_inode(fp);
+    printf("start vim !\n");
+    char * args[] = {"vim", VIM_BUF_PATH, NULL};
+    int status;
+    if(!fork()){
+        execvp("vim", args);
+    }
+    wait(&status);
 ```
+
+> The exec() family of functions replaces the current process image with a new process image.
+
+## 如何解析命令
+解析成为数组， 然后逐个解析
+
+## 支持那些命令
+增删改查 + vim
+
+## 如何读写100M的文件
+创建使用 a+
+读写使用 rb+
